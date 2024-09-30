@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JavaScript Calculator with Iterators</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.6.4/math.min.js"
+            integrity="sha512-iphNRh6dPbeuPGIrQbCdbBF/qcqadKWLa35YPVfMZMHBSI6PLJh1om2xCTWhpVpmUyb4IvVS9iYnnYMkleVXLA=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+        }
+        table {
+            border-collapse: collapse;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+        }
+        input[type="button"] {
+            width: 100%;
+            padding: 20px;
+            background-color: #8d925d;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            cursor: pointer;
+        }
+        input[type="button"]:hover {
+            background-color: #7a8a4e;
+        }
+        input[type="text"] {
+            padding: 20px;
+            font-size: 28px;
+            font-weight: bold;
+            border: 2px solid #8d925d;
+            border-radius: 5px;
+            text-align: right;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .colspan {
+            background-color: #e9ecef;
+        }
+        .iterator-section {
+            background-color: #8d925d;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: 300px; /* Adjust the width as needed */
+            margin: 10px;
+            text-align: center;
+        }
+        .iterator-section h3 {
+            margin: 10px 0;
+        }
+        .iterator-section p {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <table id="calculator">
+        <tr>
+            <td colspan="4" class="colspan"><input type="text" id="result" readonly /></td>
+        </tr>
+        <tr>
+            <td><input type="button" value="C" onclick="clearResult()" /></td>
+            <td><input type="button" value="/" onclick="display('/')" /></td>
+            <td><input type="button" value="*" onclick="display('*')" /></td>
+            <td><input type="button" value="-" onclick="display('-')" /></td>
+        </tr>
+        <tr>
+            <td><input type="button" value="7" onclick="display('7')" /></td>
+            <td><input type="button" value="8" onclick="display('8')" /></td>
+            <td><input type="button" value="9" onclick="display('9')" /></td>
+            <td><input type="button" value="+" onclick="display('+')" /></td>
+        </tr>
+        <tr>
+            <td><input type="button" value="4" onclick="display('4')" /></td>
+            <td><input type="button" value="5" onclick="display('5')" /></td>
+            <td><input type="button" value="6" onclick="display('6')" /></td>
+            <td rowspan="2"><input type="button" value="=" onclick="calculate()" style="height: 100%;" /></td>
+        </tr>
+        <tr>
+            <td><input type="button" value="1" onclick="display('1')" /></td>
+            <td><input type="button" value="2" onclick="display('2')" /></td>
+            <td><input type="button" value="3" onclick="display('3')" /></td>
+        </tr>
+        <tr>
+            <td colspan="2"><input type="button" value="0" onclick="display('0')" /></td>
+            <td><input type="button" value="." onclick="display('.')" /></td>
+        </tr>
+    </table>
+
+    <div class="iterator-section">
+        <h2>Custom Iterator and Prime Number Generator</h2>
+        <div>
+            <h3>Iterator for Squaring Numbers</h3>
+            <button id="squareNext">Get Square</button>
+            <p id="squareOutput">Click "Get Square" to see the next squared value.</p>
+        </div>
+        <div>
+            <h3>Prime Number Generator</h3>
+            <button id="primeNext">Get Prime</button>
+            <p id="primeOutput">Click "Get Prime" to see the next prime number.</p>
+        </div>
+    </div>
+
+    <script>
+        // Calculator functions
+        function display(val) {
+            document.getElementById("result").value += val;
+        }
+
+        function clearResult() {
+            document.getElementById("result").value = "";
+        }
+
+        function calculate() {
+            const expression = document.getElementById("result").value;
+            try {
+                const result = math.evaluate(expression);
+                document.getElementById("result").value = result;
+            } catch {
+                document.getElementById("result").value = "Error";
+            }
+        }
+
+        // Custom Iterator for Squaring Numbers
+        const numbersArray = [1, 2, 3, 4, 5];
+        const squareIterator = (function* (arr) {
+            for (const num of arr) {
+                yield num * num;
+            }
+        })(numbersArray);
+
+        document.getElementById('squareNext').addEventListener('click', () => {
+            const result = squareIterator.next();
+            document.getElementById('squareOutput').textContent = result.done ? 'No more values.' : `Square: ${result.value}`;
+        });
+
+        // Generator Function for Prime Numbers
+        function* primeGenerator(limit) {
+            function isPrime(num) {
+                if (num <= 1) return false;
+                if (num <= 3) return true;
+                if (num % 2 === 0 || num % 3 === 0) return false;
+                for (let i = 5; i * i <= num; i += 6) {
+                    if (num % i === 0 || num % (i + 2) === 0) return false;
+                }
+                return true;
+            }
+
+            for (let num = 2; num <= limit; num++) {
+                if (isPrime(num)) {
+                    yield num;
+                }
+            }
+        }
+
+        const primeIterator = primeGenerator(50); // Adjust the limit as needed
+
+        document.getElementById('primeNext').addEventListener('click', () => {
+            const result = primeIterator.next();
+            document.getElementById('primeOutput').textContent = result.done ? 'No more primes.' : `Prime: ${result.value}`;
+        });
+    </script>
+</body>
+</html>
